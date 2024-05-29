@@ -9,11 +9,11 @@ PROTEINS = ["Chicken", "Pork", "Tofu"]
 
 class BrothList(APIView):
     def get(self, request):
-        return Response(BROTHS)
+        return Response(BROTHS, content_type="application/json")
 
 class ProteinList(APIView):
     def get(self, request):
-        return Response(PROTEINS)
+        return Response(PROTEINS, content_type="application/json")
 
 class OrderCreate(APIView):
     def post(self, request):
@@ -31,7 +31,7 @@ class OrderCreate(APIView):
             print(response.json())
             if response.status_code == 200:
                 order_id = response.json().get('orderId')
-                return Response({"order_id": order_id, "broth": broth, "protein": protein})
+                return Response({"order_id": order_id, "broth": broth, "protein": protein}, content_type="application/json")
             else:
                 return Response({"error": "Failed to generate order ID."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
