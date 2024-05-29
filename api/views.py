@@ -3,6 +3,12 @@ from rest_framework.response import Response
 from rest_framework import status
 import requests
 from .serializers import OrderSerializers
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+API_KEY = os.getenv('API_KEY')
 
 BROTHS = ["Shoyu", "Miso", "Tonkotsu"]
 PROTEINS = ["Chicken", "Pork", "Tofu"]
@@ -24,11 +30,14 @@ class OrderCreate(APIView):
             if broth not in BROTHS or protein not in PROTEINS:
                 return Response({"error": "Invalid broth or protein selection."}, status=status.HTTP_400_BAD_REQUEST)
             
+            api_key = os.getenv('API_KEY')
+            if not api_key:
+                return Response({"error": "API Key not found."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR, content_type="application/json")
+            
             response = requests.post(
                 'https://api.tech.redventures.com.br/orders/generate-id',
-                headers={'x-api-key': 'ZtVdh8XQ2U8pWI2gmZ7f796Vh8GllXoN7mr0djNf'}
+                headers={'x-api-key': API_KEY}
             )
-            print(response.json())
             if response.status_code == 200:
                 order_id = response.json().get('orderId')
                 return Response({"order_id": order_id, "broth": broth, "protein": protein}, content_type="application/json")
